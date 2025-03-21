@@ -1,0 +1,95 @@
+/* Full-page layout */
+.certificate-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #f0f0f0;
+  padding: 20px;
+}
+
+/* Certificate container */
+.certificate-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70%;
+  height: 60%;
+  background: white;
+  border: 12px solid #4caf50;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  position: relative;
+  text-align: center;
+}
+
+/* Certificate content */
+.certificate-content {
+  text-align: center;
+  width: 100%;
+}
+
+/* Certificate heading and text */
+.certificate-heading {
+  font-size: 40px;
+  color: #2e7d32;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.certificate-text {
+  font-size: 22px;
+  color: #555;
+  line-height: 1.6;
+  max-width: 80%;
+  margin: 0 auto 20px;
+}
+
+/* Appreciation lines styling */
+.appreciation-lines {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #444;
+  line-height: 1.8;
+}
+
+.appreciation-lines p {
+  margin: 8px 0;
+}
+
+/* Company name */
+.company-name {
+  position: absolute;
+  bottom: 20px;
+  right: 40px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #2e7d32;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* Download button container */
+.download-btn-container {
+  margin-top: 20px;
+}
+
+/* Download button */
+.download-btn {
+  padding: 14px 32px;
+  font-size: 18px;
+  color: #fff;
+  background: #4caf50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.download-btn:hover {
+  background: #388e3c;
+}

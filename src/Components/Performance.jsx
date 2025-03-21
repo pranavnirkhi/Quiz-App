@@ -1,21 +1,40 @@
-import React from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Performance.css";
 
 const Performance = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { score, totalQuestions, data, selectedAnswers } = location.state || {};
+
+  const [quizData, setQuizData] = useState(() => {
+    const savedData = localStorage.getItem("quizData");
+    return savedData ? JSON.parse(savedData) : {};
+  });
+
+  const { score, totalQuestions, data, selectedAnswers } = quizData;
 
   const goBack = () => {
     navigate("/quiz", {
       state: {
-        score: score,
-        totalQuestions: totalQuestions,
-        showScore: true, // ✅ Flag to show score display
+        score,
+        totalQuestions,
+        showScore: true,
       },
     });
   };
+
+  const resetQuiz = () => {
+    localStorage.removeItem("quizData");
+    navigate("/quiz");
+  };
+
+  if (!data || !selectedAnswers) {
+    return (
+      <div className="performance-container">
+        <h1>No Performance Data Found</h1>
+        <Link to="/">🏠 Back to Home</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="performance-container">
@@ -25,21 +44,17 @@ const Performance = () => {
       </h2>
 
       <ul>
-        {data.map((question, qIndex) => {
-          const correctAnswer = question["option" + question.ans]; // ✅ Correct answer
-
-          // ✅ Map selected answer index to the corresponding option text
-          const selectedIndex = selectedAnswers[qIndex];
-          const userAnswer =
-            selectedIndex !== undefined
-              ? question[`option${selectedIndex}`]
-              : "Not Answered";
+        {data.map((question, index) => {
+          const correctAnswer = question[`option${question.ans}`];
+          const selectedIndex = selectedAnswers[index];
+          const userAnswer = selectedIndex
+            ? question[`option${selectedIndex}`]
+            : "Not Answered";
 
           return (
-            <li key={qIndex} className="performance-item">
-              <strong>Q{qIndex + 1}:</strong> {question.question}
+            <li key={index} className="performance-item">
+              <strong>Q{index + 1}:</strong> {question.question}
               <br />
-              {/* ✅ User's Answer with Green or Red Highlight */}
               <span
                 className={`answer-feedback ${
                   userAnswer === correctAnswer
@@ -50,7 +65,6 @@ const Performance = () => {
                 Your Answer: {userAnswer}
               </span>
               <br />
-              {/* ✅ Correct Answer Display */}
               <span className="correct-answer">
                 ✅ Correct Answer: {correctAnswer}
               </span>
@@ -60,14 +74,15 @@ const Performance = () => {
       </ul>
 
       <div className="button-group">
-        {/* ✅ Back Button */}
         <button className="btn-back" onClick={goBack}>
           🔙 Back
         </button>
-
         <Link to="/">
-          <button className="btn-home">🏠 Back to Home</button>
+          <button className="btn-home">🏠 Home</button>
         </Link>
+        <button className="btn-reset" onClick={resetQuiz}>
+          🔄 Reset
+        </button>
       </div>
     </div>
   );

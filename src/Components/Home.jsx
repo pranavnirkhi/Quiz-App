@@ -23,7 +23,7 @@ const Home = () => {
           <h2>📜 Rules </h2>
           <ul className="rules-list">
             <li>
-              ✅ You have <strong>15 minutes</strong> to complete the quiz.
+              ✅ You have <strong>30 seconds</strong> to complete the quiz.
             </li>
             <li>
               ✅ Each question carries <strong>1 point</strong>.

@@ -4,7 +4,7 @@ import Quiz from "./Components/Quiz";
 import Home from "./Components/Home";
 import Performance from "./Components/Performance";
 import Scorecard from "./Components/Scorecard"; //
-
+import Certificate from "./Components/Certificate";
 const App = () => {
   return (
     <Router>
@@ -12,7 +12,8 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/performance" element={<Performance />} />
-        <Route path="/scorecard" element={<Scorecard />} />{" "}
+        <Route path="/scorecard" element={<Scorecard />} />
+        <Route path="/certificate" element={<Certificate />} />
       </Routes>
     </Router>
   );

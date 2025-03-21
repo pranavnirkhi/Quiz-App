@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import "./Quiz.css";
 import { data } from "../assets/data";
 
@@ -10,10 +10,13 @@ const Quiz = () => {
   const showScore = location.state?.showScore || false;
   const initialScore = location.state?.score || 0;
 
-  const [index, setIndex] = useState(showScore ? data.length : 0);
+  // ✅ Retrieve saved index from localStorage or default to 0
+  const savedIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
+
+  const [index, setIndex] = useState(showScore ? data.length : savedIndex);
   const [score, setScore] = useState(initialScore);
   const [selectedAnswers, setSelectedAnswers] = useState([]);
-  const [timeLeft, setTimeLeft] = useState(15 * 60);
+  const [timeLeft, setTimeLeft] = useState(30);
 
   // ⏲️ Timer Logic
   useEffect(() => {
@@ -28,9 +31,14 @@ const Quiz = () => {
 
   useEffect(() => {
     if (timeLeft === 0) {
-      setIndex(data.length);
+      autoSubmit(); // ✅ Automatically submit when time runs out
     }
   }, [timeLeft]);
+
+  // ✅ Save current index to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("currentIndex", index);
+  }, [index]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -38,20 +46,16 @@ const Quiz = () => {
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  // ✅ Store the option index instead of content
   const handleAnswerSelect = (optionIndex) => {
     let newAnswers = [...selectedAnswers];
-    newAnswers[index] = optionIndex; // Store index (1, 2, 3, 4)
+    newAnswers[index] = optionIndex;
     setSelectedAnswers(newAnswers);
   };
 
   const next = () => {
     if (selectedAnswers[index] !== undefined) {
       if (index === data.length - 1) {
-        const finalScore = selectedAnswers.filter(
-          (ans, i) => ans === data[i].ans
-        ).length;
-        setScore(finalScore);
+        submitTest();
       }
       setIndex(index + 1);
     }
@@ -67,27 +71,48 @@ const Quiz = () => {
     setIndex(0);
     setScore(0);
     setSelectedAnswers([]);
-    setTimeLeft(15 * 60);
+    setTimeLeft(30);
+    localStorage.removeItem("quizData");
+    localStorage.removeItem("currentIndex"); // ✅ Clear saved index
+  };
+
+  const submitTest = () => {
+    const finalScore = selectedAnswers.filter(
+      (ans, i) => ans === data[i].ans
+    ).length;
+
+    setScore(finalScore);
+
+    const quizData = {
+      score: finalScore,
+      totalQuestions: data.length,
+      data: data,
+      selectedAnswers: selectedAnswers,
+    };
+
+    localStorage.setItem("quizData", JSON.stringify(quizData));
+
+    navigate("/performance", {
+      state: {
+        score: finalScore,
+        totalQuestions: data.length,
+        selectedAnswers: selectedAnswers,
+        data: data,
+      },
+    });
+  };
+
+  const autoSubmit = () => {
+    // ✅ Auto-submit on timer expiration
+    submitTest();
   };
 
   const showPerformance = () => {
-    navigate("/performance", {
-      state: {
-        score: score,
-        totalQuestions: data.length,
-        data: data,
-        selectedAnswers: selectedAnswers,
-      },
-    });
+    navigate("/performance");
   };
 
   const goToScorecard = () => {
-    navigate("/scorecard", {
-      state: {
-        score: score,
-        totalQuestions: data.length,
-      },
-    });
+    navigate("/scorecard");
   };
 
   return (
@@ -137,7 +162,9 @@ const Quiz = () => {
 
           <div className="button-group">
             <button onClick={showPerformance}>Show Performance</button>
-            <button onClick={reset}>Reset</button>
+            <Link to="/">
+              <button onClick={reset}>Reset</button>
+            </Link>
             <button onClick={goToScorecard}>Scorecard</button>
           </div>
         </>
