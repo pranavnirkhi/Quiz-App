@@ -1,10 +1,19 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "./Certificate.css";
 
 const Certificate = () => {
   const certificateRef = useRef();
+  const [userName, setUserName] = useState("N/A");
+
+  // ✅ Fetch the user name from localStorage (from login page)
+  useEffect(() => {
+    const savedUserDetails = JSON.parse(localStorage.getItem("userDetails"));
+    if (savedUserDetails && savedUserDetails.name) {
+      setUserName(savedUserDetails.name);
+    }
+  }, []);
 
   const downloadCertificateAsPDF = () => {
     html2canvas(certificateRef.current, { scale: 2 }).then((canvas) => {
@@ -21,7 +30,7 @@ const Certificate = () => {
       const y = (pdfHeight - imgHeight) / 2;
 
       pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
-      pdf.save("Certificate_of_Completion.pdf");
+      pdf.save(`Certificate_of_Completion_${userName}.pdf`);
     });
   };
 
@@ -31,12 +40,12 @@ const Certificate = () => {
         <div className="certificate-content">
           <h1 className="certificate-heading">Certificate of Completion</h1>
           <p className="certificate-text">
-            This is to certify that <strong>Pranav Nirkhi</strong> has
-            successfully passed the <strong>Quizzy Test</strong>.
+            This is to certify that <strong>{userName}</strong> has successfully
+            passed the <strong>Quizzy Test</strong>.
           </p>
 
           <div className="appreciation-lines">
-            <p> Congratulations on your outstanding achievement!</p>
+            <p>Congratulations on your outstanding achievement!</p>
           </div>
 
           <div className="company-name">Novapex InfoHub</div>

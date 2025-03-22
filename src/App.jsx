@@ -5,11 +5,14 @@ import Home from "./Components/Home";
 import Performance from "./Components/Performance";
 import Scorecard from "./Components/Scorecard"; //
 import Certificate from "./Components/Certificate";
+import Login from "./Components/Login";
+
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/performance" element={<Performance />} />
         <Route path="/scorecard" element={<Scorecard />} />

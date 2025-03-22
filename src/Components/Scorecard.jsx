@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import html2canvas from "html2canvas";
 import "./Scorecard.css";
@@ -7,18 +7,25 @@ import { Link } from "react-router-dom";
 const Scorecard = () => {
   const navigate = useNavigate();
   const scorecardRef = useRef();
+  const [userDetails, setUserDetails] = useState({
+    name: "N/A",
+    age: "N/A",
+  });
+
+  // ✅ Retrieve user details from localStorage (from login)
+  useEffect(() => {
+    const savedUserDetails = JSON.parse(localStorage.getItem("userDetails"));
+    if (savedUserDetails) {
+      setUserDetails({
+        name: savedUserDetails.name || "N/A",
+        age: savedUserDetails.age || "N/A",
+      });
+    }
+  }, []);
 
   // ✅ Retrieve quiz data from localStorage
   const quizData = JSON.parse(localStorage.getItem("quizData")) || {};
-  const {
-    score,
-    totalQuestions,
-    selectedAnswers,
-    data,
-    timeTaken,
-    studentName,
-    studentAge,
-  } = quizData;
+  const { score, totalQuestions, selectedAnswers, data, timeTaken } = quizData;
 
   const passingScore = Math.floor(totalQuestions * 0.5);
   const isPass = score >= passingScore;
@@ -53,10 +60,8 @@ const Scorecard = () => {
         totalQuestions: totalQuestions,
         selectedAnswers: selectedAnswers,
         data: data,
-        showScore: true, // Ensure score display is shown
+        showScore: true,
         timeTaken: timeTaken,
-        studentName: studentName,
-        studentAge: studentAge,
       },
     });
   };
@@ -66,12 +71,13 @@ const Scorecard = () => {
       <div className="scorecard-box">
         <h1 className="scorecard-title">🎯 Quiz Scorecard</h1>
 
+        {/* ✅ Displaying user details fetched from localStorage */}
         <div className="student-info">
           <p>
-            👤 <strong>Name:</strong> {studentName || "Pranav Nirkhi"}
+            👤 <strong>Name:</strong> {userDetails.name}
           </p>
           <p>
-            🎂 <strong>Age:</strong> {studentAge || "21"}
+            🎂 <strong>Age:</strong> {userDetails.age}
           </p>
           <p>
             ⏱️ <strong>Time Taken:</strong> {timeTaken || "N/A"} mins
