@@ -6,12 +6,14 @@ import Performance from "./Components/Performance";
 import Scorecard from "./Components/Scorecard"; //
 import Certificate from "./Components/Certificate";
 import Login from "./Components/Login";
+import LoginPage from "./Components/Loginpage";
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/loginpage" element={<LoginPage />} />
         <Route path="/home" element={<Home />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/performance" element={<Performance />} />

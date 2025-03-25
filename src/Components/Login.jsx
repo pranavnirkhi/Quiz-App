@@ -1,6 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
-import { Link } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -8,7 +8,10 @@ const Login = () => {
     age: "",
     mobile: "",
     email: "",
+    password: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,9 +19,20 @@ const Login = () => {
   };
 
   const handleRegister = () => {
+    if (!formData.name || !formData.password) {
+      alert("Please enter both name and password.");
+      return;
+    }
+
     localStorage.setItem("userDetails", JSON.stringify(formData));
-    alert("Details saved successfully!");
-    setFormData({ name: "", age: "", mobile: "", email: "" });
+    alert("Details saved successfully! Please log in.");
+
+    // Redirect to login page
+    navigate("/loginpage");
+  };
+
+  const handleGoToLogin = () => {
+    navigate("/loginpage"); // Navigate to LoginPage
   };
 
   return (
@@ -29,7 +43,7 @@ const Login = () => {
       <input
         type="text"
         name="name"
-        placeholder="Name"
+        placeholder="Username"
         value={formData.name}
         onChange={handleChange}
         className={styles.input}
@@ -54,15 +68,32 @@ const Login = () => {
         type="email"
         name="email"
         placeholder="Email"
+        value={formData.email}
+        onChange={handleChange}
+        className={styles.input}
+      />
+      <input
+        type="password"
+        name="password"
+        placeholder="Set password"
         value={formData.password}
         onChange={handleChange}
         className={styles.input}
       />
-      <Link to="/home">
+
+      {/* Button container for horizontal alignment */}
+      <div className={styles.buttonContainer}>
         <button onClick={handleRegister} className={styles.button}>
           Register
         </button>
-      </Link>
+
+        <button
+          onClick={handleGoToLogin}
+          className={`${styles.button} ${styles.loginButton}`}
+        >
+          Login
+        </button>
+      </div>
     </div>
   );
 };
