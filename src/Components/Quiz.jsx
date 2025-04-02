@@ -1,50 +1,49 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { fetchData } from "../assets/data"; // Import fetch function
+import { supabase } from "../createClient";
 import "./Quiz.css";
-import { data } from "../assets/data";
 
 const Quiz = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const showScore = location.state?.showScore || false;
-  const initialScore = location.state?.score || 0;
-
-  // ✅ Retrieve saved index from localStorage or default to 0
-  const savedIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
-
-  const [index, setIndex] = useState(showScore ? data.length : savedIndex);
-  const [score, setScore] = useState(initialScore);
+  const [data, setData] = useState([]);
+  const [index, setIndex] = useState(
+    parseInt(localStorage.getItem("currentIndex")) || 0
+  );
+  const [score, setScore] = useState(location.state?.score || 0);
   const [selectedAnswers, setSelectedAnswers] = useState([]);
   const [timeLeft, setTimeLeft] = useState(30);
+  const [showScore, setShowScore] = useState(
+    location.state?.showScore || false
+  );
 
-  // ⏲️ Timer Logic
+  // ✅ Fetch data from Supabase when the component mounts
+  useEffect(() => {
+    fetchData().then(setData);
+  }, []);
+
   useEffect(() => {
     if (timeLeft <= 0 || showScore) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => prevTime - 1);
-    }, 1000);
-
+    const timer = setInterval(
+      () => setTimeLeft((prevTime) => prevTime - 1),
+      1000
+    );
     return () => clearInterval(timer);
   }, [timeLeft, showScore]);
 
   useEffect(() => {
-    if (timeLeft === 0) {
-      autoSubmit(); // ✅ Automatically submit when time runs out
-    }
+    if (timeLeft === 0) autoSubmit();
   }, [timeLeft]);
 
-  // ✅ Save current index to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("currentIndex", index);
   }, [index]);
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
-  };
+  if (data.length === 0) {
+    return <div>Loading...</div>;
+  }
 
   const handleAnswerSelect = (optionIndex) => {
     let newAnswers = [...selectedAnswers];
@@ -56,8 +55,9 @@ const Quiz = () => {
     if (selectedAnswers[index] !== undefined) {
       if (index === data.length - 1) {
         submitTest();
+      } else {
+        setIndex(index + 1);
       }
-      setIndex(index + 1);
     }
   };
 
@@ -72,59 +72,68 @@ const Quiz = () => {
     setScore(0);
     setSelectedAnswers([]);
     setTimeLeft(30);
+    setShowScore(false);
     localStorage.removeItem("quizData");
-    localStorage.removeItem("currentIndex"); // ✅ Clear saved index
+    localStorage.removeItem("currentIndex");
   };
 
   const submitTest = () => {
+    console.log("Selected Answers:", selectedAnswers);
+    console.log(
+      "Correct Answers:",
+      data.map((q) => q.answer)
+    );
+
     const finalScore = selectedAnswers.filter(
-      (ans, i) => ans === data[i].ans
+      (ans, i) => ans === data[i].answer // ✅ Compare correctly
     ).length;
 
+    console.log("Final Score:", finalScore); // Debugging output
+
     setScore(finalScore);
+    setShowScore(true);
 
     const quizData = {
       score: finalScore,
       totalQuestions: data.length,
-      data: data,
       selectedAnswers: selectedAnswers,
+      correctAnswers: data.map((q) => q.answer),
+      data: data,
     };
 
     localStorage.setItem("quizData", JSON.stringify(quizData));
-
-    navigate("/performance", {
-      state: {
-        score: finalScore,
-        totalQuestions: data.length,
-        selectedAnswers: selectedAnswers,
-        data: data,
-      },
-    });
   };
 
   const autoSubmit = () => {
-    // ✅ Auto-submit on timer expiration
     submitTest();
-  };
-
-  const showPerformance = () => {
-    navigate("/performance");
-  };
-
-  const goToScorecard = () => {
-    navigate("/scorecard");
   };
 
   return (
     <div className="container">
       <h1>Quiz App</h1>
       <hr />
-
-      {index < data.length && !showScore && (
-        <div className="timer">⏳ Time Left: {formatTime(timeLeft)}</div>
+      {!showScore && index < data.length && (
+        <div className="timer">⏳ Time Left: {timeLeft}</div>
       )}
 
-      {index < data.length ? (
+      {showScore ? (
+        // ✅ Final Score Page (Displayed after finishing the test)
+        <>
+          <h2>
+            You Scored {score} out of {data.length}
+          </h2>
+          <div className="button-group">
+            <button onClick={() => navigate("/performance")}>
+              Show Performance
+            </button>
+            <Link to="/">
+              <button onClick={reset}>Reset</button>
+            </Link>
+            <button onClick={() => navigate("/scorecard")}>Scorecard</button>
+          </div>
+        </>
+      ) : (
+        // ✅ Quiz Question Display
         <>
           <h2>
             {index + 1}. {data[index].question}
@@ -133,8 +142,8 @@ const Quiz = () => {
             {["option1", "option2", "option3", "option4"].map((option, i) => (
               <li
                 key={i}
-                className={`option ${
-                  selectedAnswers[index] === i + 1 ? "selected" : ""
+                className={`option${
+                  selectedAnswers[index] === i + 1 ? " selected" : ""
                 }`}
                 onClick={() => handleAnswerSelect(i + 1)}
               >
@@ -145,27 +154,12 @@ const Quiz = () => {
 
           <div className="button-group">
             {index > 0 && <button onClick={back}>Back</button>}
-
             <button
               onClick={next}
               disabled={selectedAnswers[index] === undefined}
             >
               {index === data.length - 1 ? "Finish" : "Next"}
             </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <h2>
-            You Scored {score} out of {data.length}
-          </h2>
-
-          <div className="button-group">
-            <button onClick={showPerformance}>Show Performance</button>
-            <Link to="/">
-              <button onClick={reset}>Reset</button>
-            </Link>
-            <button onClick={goToScorecard}>Scorecard</button>
           </div>
         </>
       )}

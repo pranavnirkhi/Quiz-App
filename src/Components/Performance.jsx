@@ -14,11 +14,7 @@ const Performance = () => {
 
   const goBack = () => {
     navigate("/quiz", {
-      state: {
-        score,
-        totalQuestions,
-        showScore: true,
-      },
+      state: { score, totalQuestions, showScore: true },
     });
   };
 
@@ -45,7 +41,7 @@ const Performance = () => {
 
       <ul>
         {data.map((question, index) => {
-          const correctAnswer = question[`option${question.ans}`];
+          const correctAnswer = question[`option${question.answer}`]; // ✅ Fetch correct answer dynamically
           const selectedIndex = selectedAnswers[index];
           const userAnswer = selectedIndex
             ? question[`option${selectedIndex}`]

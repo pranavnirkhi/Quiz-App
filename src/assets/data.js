@@ -1,50 +1,20 @@
-export const data = [
-  {
-    question: "Which device is required for the internet connection?",
-    option1: "Modem",
-    option2: "Router",
-    option3: "LAN Cable",
-    option4: "Pen Drive",
-    ans: 1,
-  },
-  {
-    question: "Which protocol is used to send emails?",
-    option1: "HTTP",
-    option2: "FTP",
-    option3: "SMTP",
-    option4: "SNMP",
-    ans: 3,
-  },
-  {
-    question: "Which language is used for web development?",
-    option1: "Python",
-    option2: "JavaScript",
-    option3: "C++",
-    option4: "Java",
-    ans: 2,
-  },
-  {
-    question: "What does RAM stand for?",
-    option1: "Read Access Memory",
-    option2: "Random Access Memory",
-    option3: "Run Access Memory",
-    option4: "Real Access Memory",
-    ans: 2,
-  },
-  {
-    question: "Which part of the computer is considered the brain?",
-    option1: "Hard Drive",
-    option2: "RAM",
-    option3: "CPU",
-    option4: "Power Supply",
-    ans: 3,
-  },
-  {
-    question: "Which of the following is an input device?",
-    option1: "Monitor",
-    option2: "Printer",
-    option3: "Keyboard",
-    option4: "Speaker",
-    ans: 3,
-  },
-];
+import { supabase } from "../createClient";
+
+export const fetchData = async () => {
+  const { data, error } = await supabase.from("QuizQuestions").select("*");
+
+  if (error) {
+    console.error("Error fetching data:", error);
+    return []; // Return empty array if fetch fails
+  }
+
+  // ✅ Ensure the fetched data structure matches your original `data.js`
+  return data.map((item) => ({
+    question: item.question,
+    option1: item.option1,
+    option2: item.option2,
+    option3: item.option3,
+    option4: item.option4,
+    answer: Number(item.answer), // Ensure ans is correctly formatted
+  }));
+};
