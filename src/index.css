@@ -7,3 +7,7 @@ body {
   background-image: linear-gradient(#d8c7ff, #19006c);
   font-family: "poppins";
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
